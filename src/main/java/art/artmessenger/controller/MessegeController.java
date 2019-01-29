@@ -1,8 +1,7 @@
 package art.artmessenger.controller;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import art.artmessenger.exceptions.NotFoundException;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,9 +12,10 @@ import java.util.Map;
 @RequestMapping("message") //Все обращения начинающиеся с этго перенаправляются на этот контроллер
 public class MessegeController {
 
+    private int counter = 4;
     // 2.
     // Приложение возвращает список предопределенных сообщений
-    public List<Map<String, String>> masseges = new ArrayList<Map<String, String>>(){{
+    private List<Map<String, String>> messeges = new ArrayList<Map<String, String>>(){{
         add(new HashMap<String, String>(){{put("id", "1"); put("text", "First massage");}});
         add(new HashMap<String, String>(){{put("id", "2"); put("text", "Second massage");}});
         add(new HashMap<String, String>(){{put("id", "3"); put("text", "Third massage");}});
@@ -23,15 +23,81 @@ public class MessegeController {
 
     @GetMapping
     public List<Map<String, String>> list (){
-        return masseges;    //А при запросе на http://localhost:8080/message на страничку будет возвращаться список сообщений в JSON
+        return messeges;    //А при запросе на http://localhost:8080/message на страничку будет возвращаться список сообщений в JSON
     }
 
     // 3.
-    // 
+    // Сождадим мэппинг для получения единичного сообщения по его id
+
+    @GetMapping("{id}")
+    public Map<String, String> getOne(@PathVariable String id){ // @PathVariable, указывающая на то, что данный параметр
+                                                                // получается из адресной строки
+
+//            return messeges.stream()
+//                .filter(message -> message.get("id").equals(id))
+//                .findFirst()
+//                .orElseThrow(NotFoundException::new); //Возвратите содержащееся значение, если оно присутствует, в противном случае выведите исключение, которое будет создано предоставленным поставщиком.
+        // 4.
+    // Создаеи свое NotFoundException
+
+        // Код по поиску сообщений выносим в отдельный метод getMessege
+        return getMessege(id);
+    }
+
+    private Map<String, String> getMessege(@PathVariable String id) {
+        return messeges.stream()
+                .filter(message -> message.get("id").equals(id))
+                .findFirst()
+                .orElseThrow(NotFoundException::new);
+    }
+
+    // 5.
+    // Добавление объектов. PostMapping
+    @PostMapping
+    // Возвращает единственный инстанс Map<String, String>
+    public Map<String, String> create (@RequestBody Map<String, String> messege) {//HTTP-запрос кроме заголовков и параметров
+        // имеет также основную часть - тело запроса.
+        // Её содержимое также может быть распознано как параметр в методе контроллера.
+        // Для того, чтобы это произошло, необходимо указать @RequestBody в объявлении этого параметра
+
+        messege.put("id", String.valueOf(counter++)); // инкриментируем счетчик сообщений прежде чем отправить запрос
+
+        messeges.add(messege);
+
+        return messege;
+    }
+
+    // 6.
+    // Обновление текущей записи. PutMapping
+    @PutMapping("{id}")
+    public Map<String, String> update (@PathVariable String id,
+                                        @RequestBody Map<String, String> messege) {
+        Map<String, String> messegeFromDB = getMessege(id); // Найденное сообщение помещаем в messegeFromDB
+                                                            // т.к. уже образовалась небольшая БД
+        messegeFromDB.putAll(messege);
+
+        // Добавляем @PathVariable String id, чтобы не затереть айдишник руками, а получать его из адр-й строки
+        messegeFromDB.put("id", id);
+
+        return messegeFromDB;
+    }
+
+    // 7.
+    // Запрос на удаление
+    @DeleteMapping("{id}")
+    //Ничего не возвращает.
+    // Код 200 - удаление успешно
+    // код 404 - запись не найдена
+    // код 5ХХ - ошибка при  удалении
+    public void delete(@PathVariable String id){
+        Map<String, String> messege = getMessege(id); // Здесь отрабатывает 404 -й
+
+        messeges.remove(messege);
+    }
 
 //  1.
 // @GetMapping
 //    public String list(){
 //        return "index";    //А при запросе на http://localhost:8080/message на страничку будет возвращаться index
 //    }
-}
+ }
