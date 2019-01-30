@@ -1,6 +1,8 @@
 package art.artmessenger.controller;
 
 import art.artmessenger.exceptions.NotFoundException;
+import art.artmessenger.repo.MessageRepo;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
@@ -12,14 +14,21 @@ import java.util.Map;
 @RequestMapping("message") //Все обращения начинающиеся с этго перенаправляются на этот контроллер
 public class MessageController {
 
-    private int counter = 4;
-    // 2.
-    // Приложение возвращает список предопределенных сообщений
-    private List<Map<String, String>> messages = new ArrayList<Map<String, String>>(){{
-        add(new HashMap<String, String>(){{put("id", "1"); put("text", "First massage");}});
-        add(new HashMap<String, String>(){{put("id", "2"); put("text", "Second massage");}});
-        add(new HashMap<String, String>(){{put("id", "3"); put("text", "Third massage");}});
-    }};
+    private final MessageRepo messageRepo;
+
+    @Autowired
+    public MessageController(MessageRepo messageRepo) {
+        this.messageRepo = messageRepo;
+    }
+
+//    private int counter = 4;
+//    // 2.
+//    // Приложение возвращает список предопределенных сообщений
+//    private List<Map<String, String>> messages = new ArrayList<Map<String, String>>(){{
+//        add(new HashMap<String, String>(){{put("id", "1"); put("text", "First massage");}});
+//        add(new HashMap<String, String>(){{put("id", "2"); put("text", "Second massage");}});
+//        add(new HashMap<String, String>(){{put("id", "3"); put("text", "Third massage");}});
+//    }};
 
     @GetMapping
     public List<Map<String, String>> list (){
