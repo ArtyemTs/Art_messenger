@@ -10,12 +10,12 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("message") //Все обращения начинающиеся с этго перенаправляются на этот контроллер
-public class MessegeController {
+public class MessageController {
 
     private int counter = 4;
     // 2.
     // Приложение возвращает список предопределенных сообщений
-    private List<Map<String, String>> messeges = new ArrayList<Map<String, String>>(){{
+    private List<Map<String, String>> messages = new ArrayList<Map<String, String>>(){{
         add(new HashMap<String, String>(){{put("id", "1"); put("text", "First massage");}});
         add(new HashMap<String, String>(){{put("id", "2"); put("text", "Second massage");}});
         add(new HashMap<String, String>(){{put("id", "3"); put("text", "Third massage");}});
@@ -23,7 +23,7 @@ public class MessegeController {
 
     @GetMapping
     public List<Map<String, String>> list (){
-        return messeges;    //А при запросе на http://localhost:8080/message на страничку будет возвращаться список сообщений в JSON
+        return messages;    //А при запросе на http://localhost:8080/message на страничку будет возвращаться список сообщений в JSON
     }
 
     // 3.
@@ -41,11 +41,11 @@ public class MessegeController {
     // Создаеи свое NotFoundException
 
         // Код по поиску сообщений выносим в отдельный метод getMessege
-        return getMessege(id);
+        return getMessage(id);
     }
 
-    private Map<String, String> getMessege(@PathVariable String id) {
-        return messeges.stream()
+    private Map<String, String> getMessage(@PathVariable String id) {
+        return messages.stream()
                 .filter(message -> message.get("id").equals(id))
                 .findFirst()
                 .orElseThrow(NotFoundException::new);
@@ -62,7 +62,7 @@ public class MessegeController {
 
         messege.put("id", String.valueOf(counter++)); // инкриментируем счетчик сообщений прежде чем отправить запрос
 
-        messeges.add(messege);
+        messages.add(messege);
 
         return messege;
     }
@@ -71,15 +71,15 @@ public class MessegeController {
     // Обновление текущей записи. PutMapping
     @PutMapping("{id}")
     public Map<String, String> update (@PathVariable String id,
-                                        @RequestBody Map<String, String> messege) {
-        Map<String, String> messegeFromDB = getMessege(id); // Найденное сообщение помещаем в messegeFromDB
+                                        @RequestBody Map<String, String> message) {
+        Map<String, String> messageFromDB = getMessage(id); // Найденное сообщение помещаем в messageFromDB
                                                             // т.к. уже образовалась небольшая БД
-        messegeFromDB.putAll(messege);
+        messageFromDB.putAll(message);
 
         // Добавляем @PathVariable String id, чтобы не затереть айдишник руками, а получать его из адр-й строки
-        messegeFromDB.put("id", id);
+        messageFromDB.put("id", id);
 
-        return messegeFromDB;
+        return messageFromDB;
     }
 
     // 7.
@@ -90,9 +90,9 @@ public class MessegeController {
     // код 404 - запись не найдена
     // код 5ХХ - ошибка при  удалении
     public void delete(@PathVariable String id){
-        Map<String, String> messege = getMessege(id); // Здесь отрабатывает 404 -й
+        Map<String, String> message = getMessage(id); // Здесь отрабатывает 404 -й
 
-        messeges.remove(messege);
+        messages.remove(message);
     }
 
 //  1.
