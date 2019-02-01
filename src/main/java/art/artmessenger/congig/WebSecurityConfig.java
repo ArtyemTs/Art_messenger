@@ -18,12 +18,20 @@ import java.time.LocalDateTime;
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+
+        // https://spring.io/guides/tutorials/spring-boot-oauth2/
         http
+                .antMatcher("/**")
                 .authorizeRequests()
-                .mvcMatchers("/").permitAll()  // позволяет ходить в root без авторизации
+                .antMatchers("/", "/login**", "/webjars/**", "/error**").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .csrf().disable();
+//                .authorizeRequests()
+//                .mvcMatchers("/").permitAll()  // позволяет ходить в root без авторизации
+//                .anyRequest().authenticated()
+//                .and()
+//                .csrf().disable();
     }
 
 
@@ -36,7 +44,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
             User user = userDetailsRepo.findById(id).orElseGet(() -> {
                 User newUser = new User();
-
                 newUser.setId(id);
                 newUser.setName((String) map.get("name"));
                 newUser.setEmail((String) map.get("email"));
