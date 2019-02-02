@@ -1,18 +1,20 @@
 package art.artmessenger.domain;
 
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import java.io.Serializable;
 import java.time.LocalDateTime;
 
 
 @Entity
 @Table(name = "usr")
 @Data
-public class User {
+public class User implements Serializable {
     @Id
     // Данные которые будут приходить с Гугла
     private String id;
@@ -22,6 +24,7 @@ public class User {
     private String gender;
     private String locale;
     // Создадим сами
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime lastVisit;
 
     public String getId() {
